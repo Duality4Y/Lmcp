@@ -2,7 +2,7 @@ from glob import glob
 import os
 import fnmatch
 
-prefix = ''
+prefix = ARGUMENTS.get('prefix', '')
 cc = prefix + 'gcc'
 cxx = prefix + 'g++'
 ar = prefix + 'ar'
