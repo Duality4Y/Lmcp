@@ -156,12 +156,14 @@ bool Lmcp::processPacket(uint8_t* data, uint16_t packet_len)
                 );
                 break;
             }
+            // draw rgb rows.
             case 0x30:
             {
                 uint8_t y = data[packet_position++];
-                packet_position += drawImageRgb(0, y*8, this->width, 8, (uint8_t *)data + packet_position);
+                packet_position += drawImageRgb(0, y*8, this->width, 1022 / this->width, (uint8_t *)data + packet_position);
                 break;
             }
+            // draw rgb image.
             case 0x31:
             {
                 uint8_t x = data[packet_position++];
@@ -171,6 +173,7 @@ bool Lmcp::processPacket(uint8_t* data, uint16_t packet_len)
                 packet_position += drawImageRgb(x, y, width, height, (uint8_t *)(data + packet_position));
                 break;
             }
+            // set legacy color.
             case 0x32:
             {
                 this->set_color[0] = data[packet_position++];
