@@ -12,7 +12,7 @@ class Lmcp
 public:
     Lmcp(size_t, size_t, uint16_t);
 
-    bool processPacket(uint8_t*, uint16_t);
+    bool processPacket(uint8_t *, uint16_t);
     // output the buffer
     virtual void clear();
     virtual void writeScreen();
@@ -26,12 +26,15 @@ public:
 private:
 
     // draw functions
-    uint16_t drawStringNoLen(char*, uint8_t, uint8_t, uint8_t brightness=0xFF, bool absolute=false);
-    uint16_t drawString(char*, uint16_t, size_t, size_t, uint8_t brightness=0xFF, bool absolute=false);
-    uint16_t drawImage(uint8_t x, uint8_t y, uint16_t width, uint16_t height, uint8_t* data);
+    uint16_t drawStringNoLen(char *, uint8_t, uint8_t, uint8_t brightness=0xFF, bool absolute=false);
+    uint16_t drawString(char *, uint16_t, size_t, size_t, uint8_t brightness=0xFF, bool absolute=false);
+    uint16_t drawImage(uint8_t x, uint8_t y, uint16_t width, uint16_t height, uint8_t *data);
     uint16_t drawImageRgb(uint8_t x, uint8_t y, uint16_t width, uint16_t height, uint8_t *data);
+    bool matchMagick(uint8_t *);
+    int findMagick(uint8_t *, uint16_t);
 
     uint16_t bitdepth;
+    const char *magick = "LMCP";
 };
 
 #endif

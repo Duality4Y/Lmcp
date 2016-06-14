@@ -12,58 +12,9 @@
 
 Protocol is called LMCP (LedMatrixControlProtocol)
 
-Works via UDP port 1337
-
-Command format:
-    uint8_t command:    the command
-    [uint8_t data ...]: the data (can be non-existant)
-    
-Multiple commands can be sent in 1 datagram (optional).
-
-Commands:
-    0x01: write buffer, writes the current framebuffer to the screem
-        no arguments
-    0x02: clear, clears the matrix and writes the current framebuffer to the screen
-        no arguments
-    0x10: draw rows
-        * uint y:
-            y position of the row to draw (0-5)
-        * uint8_t data[96*8]:
-            send the data for 8 rows at a time, position is y * 8
-    0x11: draw image rectangle
-        * uint8_t x:
-            top left x position of pixel data
-        * uint8_t y:
-            top left y position of pixel data
-        * uint8_t width:
-            width of pixel data
-        * uint8_t height:
-            height of pixel data
-        * uint8_t data[width * height]:
-            pixel data
-    0x20: write text line based
-        chars are 5x7 -> 6x8 including space and line separation
-        * uint8_t x:
-            top left x position in chars (0-15)
-        * uint8_t y:
-            top left y position in chars (0-5)
-        * uint8_t brightness:
-            brightness of text (0x00-0xFF)
-        * [uint8_t text[...]]:
-            text (ascii)
-        * 0x00:
-            terminator
-    0x21: write text absolute
-        * uint8_t x:
-            top left x position in pixels (0-95)
-        * uint8_t y:
-            top left y position in pixels (0-47)
-        * uint8_t brightness:
-            brightness of text (0x00-0xFF)
-        * [uint8_t text[...]]:
-            text (ascii)
-        * 0x00:
-            terminator
+Works via UDP port 1337.
+Protocol Specifcations:
+RFC133742.txt
     
 */
 
@@ -77,118 +28,78 @@ Lmcp::Lmcp(size_t width, size_t height, uint16_t bitdepth)
     this->set_color[2] = bitdepth/2;
 }
 
-// processes the incoming packets
-bool Lmcp::processPacket(uint8_t* data, uint16_t packet_len)
+int Lmcp::findMagick(uint8_t *data, uint16_t len)
 {
-    uint16_t packet_position = 0;
-    // as long as there is data still...
-    while(packet_position < packet_len)
+    uint16_t pos = 0;
+    while(!this->matchMagick((data + pos)))
     {
-        // first byte is command
-        uint8_t cmd = data[packet_position++];
-        #ifdef DEBUG
-        printf("Packet command:0x%x len:%d\n", cmd, packet_len);
-        #endif
-        switch(cmd)
+        pos++;
+        if(pos == len)
         {
-            // write buffer
-            case 0x01:
-                this->writeScreen();
-                break;
+            fprintf(stdout, "\nmagick not found.\n");
+            return -1;
+        }
+    }
+    fprintf(stdout, "\nfound magick at: %d\n", pos);
+    return (pos + strlen(this->magick));
+}
 
-            // clear
-            case 0x02:
-                this->clear();
-                break;
-
-            // draw rows
-            case 0x10:
-            {
-                if(packet_len < 2)
-                {
-                    return false;
-                }
-                uint8_t y = data[packet_position++];
-
-                packet_position += drawImage(0, y * 8, this->width, this->height, (uint8_t*)data + packet_position);
-
-                break;
-            }
-            // draw image rectangle
-            case 0x11:
-            {
-                // 4 bytes for header
-                if(packet_len - packet_position < 4)
-                    return false;
-                uint8_t x = data[packet_position++];
-                uint8_t y = data[packet_position++];
-                uint8_t width = data[packet_position++];
-                uint8_t height = data[packet_position++];
-
-                // need enough bytes 
-                if(packet_len - packet_position < width * height)
-                    return false;
-
-                packet_position += drawImage(x, y, width, height, (uint8_t*)(data + packet_position));
-                
-                break;
-            }
-
-            // write text line based
-            case 0x20:
-            // write text absolute
-            case 0x21:
-            {
-                bool absolute = cmd == 0x21;
-                uint8_t x = data[packet_position++];
-                uint8_t y = data[packet_position++];
-                uint8_t brightness = data[packet_position++];
-                int16_t str_size = strnlen((char*)(data + packet_position), packet_len - packet_position);
-                // string error
-                if(str_size < 0)
-                    return false;
-                packet_position += drawString(
-                    (char*)(data + packet_position), 
-                    str_size, 
-                    x, y, 
-                    brightness,
-                    absolute
-                );
-                break;
-            }
-            // draw rgb rows.
-            case 0x30:
-            {
-                uint8_t y = data[packet_position++];
-                packet_position += drawImageRgb(0, y*8, this->width, 1022 / this->width, (uint8_t *)data + packet_position);
-                break;
-            }
-            // draw rgb image.
-            case 0x31:
-            {
-                uint8_t x = data[packet_position++];
-                uint8_t y = data[packet_position++];
-                uint8_t width = data[packet_position++];
-                uint8_t height = data[packet_position++];
-                packet_position += drawImageRgb(x, y, width, height, (uint8_t *)(data + packet_position));
-                break;
-            }
-            // set legacy color.
-            case 0x32:
-            {
-                this->set_color[0] = data[packet_position++];
-                this->set_color[1] = data[packet_position++];
-                this->set_color[2] = data[packet_position++];
-                break;
-            }
-            // unknown command -> ignore this packet
-            default:
-                return false;
+bool Lmcp::matchMagick(uint8_t *data)
+{
+    uint8_t len = strlen(this->magick);
+    for(int i = 0; i < len; i++)
+    {
+        if(data[i] != this->magick[i])
+        {
+            return false;
         }
     }
     return true;
 }
 
+uint16_t checksum(uint8_t *data, uint16_t len)
+{
+    uint16_t sum = 0;
+    for(int s = 0; s < len; s++)
+    {
+        sum += data[s];
+    }
+    return sum;
+}
+
+// process the incoming packets
+bool Lmcp::processPacket(uint8_t* data, uint16_t packet_len)
+{
+    uint16_t packet_pos = 0;
+    // find the start of header.
+    packet_pos = findMagick(data, packet_len);
+    // we do nothing with the version that follows the header.
+    packet_pos++;
+    uint16_t packet_sum = (data[packet_pos++]) << 8;
+    packet_sum |= data[packet_pos++];
+    fprintf(stdout, "packet_sum: %d\n", packet_sum);
+
+    uint16_t command = (data[packet_pos++]) << 8;
+    command |= data[packet_pos++];
+    fprintf(stdout, "command: %d\n", command);
+
+    uint16_t length = (data[packet_pos++]) << 8;
+    length |= data[packet_pos++];
+    fprintf(stdout, "lenght: %d\n", length);
+
+    uint16_t sum = checksum(&data[7], length + 4);
+    fprintf(stdout, "start: %d\n", data[7]);
+    fprintf(stdout, "calculated sum: %d\n", sum);
+    // checksum check
+    if(packet_sum != sum)
+    {
+        fprintf(stdout, "Checksum did not pass\n\n");
+        return false;
+    }
+    fprintf(stdout, "Checksum passed.\n");
+    fprintf(stdout, "\n");
+    return false;
+}
 
 uint16_t Lmcp::drawStringNoLen(char* text, uint8_t x_pos, uint8_t y_pos, uint8_t brightness, bool absolute)
 {

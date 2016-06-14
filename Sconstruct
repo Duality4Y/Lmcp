@@ -68,7 +68,7 @@ objects = []
 for (obj_target, src_file) in zip(obj_targets, src_files):
     objects.append(env.Object(target=obj_target, source=src_file))
 
-# env.Program(target=build_dir+project_name, source=objects)
+env.Program(target=build_dir+project_name, source=objects)
 # env.Library(target=lib_dir + project_name, source=objects)
 env.StaticLibrary(target=static_lib_dir + project_name, source=objects)
 
