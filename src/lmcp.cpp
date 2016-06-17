@@ -1,3 +1,10 @@
+/*
+    Protocol is called LMCP (LedMatrixControlProtocol)
+    Basic idea thought up by Jawsper: https://github.com/jawsper/
+
+    Protocol Specifcations:
+    RFC133742.txt
+*/
 #include "lmcp.h"
 #include "font7x5.h"
 #include "defines.h"
@@ -6,17 +13,6 @@
 #include <termios.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-
-/*
-
-Protocol is called LMCP (LedMatrixControlProtocol)
-
-Works via UDP port 1337.
-Protocol Specifcations:
-RFC133742.txt
-    
-*/
 
 Lmcp::Lmcp(size_t width, size_t height, uint16_t bitdepth)
 {
@@ -28,6 +24,9 @@ Lmcp::Lmcp(size_t width, size_t height, uint16_t bitdepth)
     this->set_color[2] = bitdepth/2;
 }
 
+/*
+    returns the location in data where the header is found.
+*/
 int Lmcp::findMagick(uint8_t *data, uint16_t len)
 {
     uint16_t pos = 0;
@@ -43,7 +42,10 @@ int Lmcp::findMagick(uint8_t *data, uint16_t len)
     return (pos);
 }
 
-/* matches */
+/* 
+    tries to find a match of this->magick in data.
+    returns true on success.
+*/
 bool Lmcp::matchMagick(uint8_t *data)
 {
     uint8_t len = strlen(this->magick);
@@ -55,16 +57,6 @@ bool Lmcp::matchMagick(uint8_t *data)
         }
     }
     return true;
-}
-
-uint16_t checksum(uint8_t *data, uint16_t len)
-{
-    uint16_t sum = 0;
-    for(int s = 0; s < len; s++)
-    {
-        sum += data[s];
-    }
-    return sum;
 }
 
 // process the incoming packets
@@ -112,10 +104,7 @@ bool Lmcp::processPacket(uint8_t* data, uint16_t packet_len)
         // printf("[lmcp]: packet is corrupt csum's don't check out.\n");
         return false;
     }
-    else
-    {
-        // printf("[lmcp]: packet checksum passed everything is valid!.\n")
-    }
+    // printf("[lmcp]: packet checksum passed everything is valid!.\n")
 
     return false;
 }
