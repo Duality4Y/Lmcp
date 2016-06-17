@@ -7,6 +7,19 @@
 const size_t TEXT_CHAR_WIDTH = 5;
 const size_t TEXT_CHAR_HEIGHT = 7;
 
+enum 
+{
+    MAGICK,
+    VERSION = 4,
+    CSUM_H,
+    CSUM_L,
+    COMMAND_H,
+    COMMAND_L,
+    LENGTH_H,
+    LENGTH_L,
+    DATA,
+};
+
 class Lmcp
 {
 public:

@@ -34,16 +34,16 @@ int Lmcp::findMagick(uint8_t *data, uint16_t len)
     while(!this->matchMagick((data + pos)))
     {
         pos++;
-        if(pos == len)
+        // gota watch out for bounderies.
+        if(pos >= (len - strlen(this->magick)))
         {
-            fprintf(stdout, "\nmagick not found.\n");
             return -1;
         }
     }
-    fprintf(stdout, "\nfound magick at: %d\n", pos);
-    return (pos + strlen(this->magick));
+    return (pos);
 }
 
+/* matches */
 bool Lmcp::matchMagick(uint8_t *data)
 {
     uint8_t len = strlen(this->magick);
@@ -70,34 +70,53 @@ uint16_t checksum(uint8_t *data, uint16_t len)
 // process the incoming packets
 bool Lmcp::processPacket(uint8_t* data, uint16_t packet_len)
 {
-    uint16_t packet_pos = 0;
     // find the start of header.
-    packet_pos = findMagick(data, packet_len);
-    // we do nothing with the version that follows the header.
-    packet_pos++;
-    uint16_t packet_sum = (data[packet_pos++]) << 8;
-    packet_sum |= data[packet_pos++];
-    fprintf(stdout, "packet_sum: %d\n", packet_sum);
-
-    uint16_t command = (data[packet_pos++]) << 8;
-    command |= data[packet_pos++];
-    fprintf(stdout, "command: %d\n", command);
-
-    uint16_t length = (data[packet_pos++]) << 8;
-    length |= data[packet_pos++];
-    fprintf(stdout, "lenght: %d\n", length);
-
-    uint16_t sum = checksum(&data[7], length + 4);
-    fprintf(stdout, "start: %d\n", data[7]);
-    fprintf(stdout, "calculated sum: %d\n", sum);
-    // checksum check
-    if(packet_sum != sum)
+    int pos = findMagick(data, packet_len);
+    if(pos < 0)
     {
-        fprintf(stdout, "Checksum did not pass\n\n");
+        // printf("[lmcp]: no header in data.\n");
         return false;
     }
-    fprintf(stdout, "Checksum passed.\n");
-    fprintf(stdout, "\n");
+    // printf("[lmcp]: header_pos: %d\n", pos);
+    
+    // version
+    uint8_t version = data[pos + VERSION];
+    // printf("[lmcp]: version: %d\n", version);
+    
+    // get packet csum
+    uint16_t packet_csum = (data[pos + CSUM_H] << 8);
+    packet_csum |= data[pos + CSUM_L];
+    // printf("[lmcp]: packet csum: %d\n", packet_csum);
+
+    // get packet command.
+    uint16_t command = (data[pos + COMMAND_H] << 8);
+    command |= data[pos + COMMAND_L];
+    // printf("[lmcp]: packet command: %d\n", command);
+
+    // get packet data length
+    uint16_t length = (data[pos + LENGTH_H] << 8);
+    length |= data[pos + LENGTH_L];
+    // printf("[lmcp]: length: %d\n", length);
+
+    // calculate csum to compare if packet is correct.
+    uint16_t csum = 0;
+    int i;
+    for(i = COMMAND_H; i < (length + 4); i++)
+    {
+        csum += data[pos + i];
+    }
+    // printf("[lmcp]: i: %d\n", i);
+    // printf("[lmcp]: calculated csum: %d\n", csum);
+    if(csum != packet_csum)
+    {
+        // printf("[lmcp]: packet is corrupt csum's don't check out.\n");
+        return false;
+    }
+    else
+    {
+        // printf("[lmcp]: packet checksum passed everything is valid!.\n")
+    }
+
     return false;
 }
 
