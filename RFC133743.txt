@@ -1,0 +1,183 @@
+Tkkrlab Network Team                                          [ Page 1 ]
+Request for Comments: 133743                                   June 2016
+
+                LED MATRIX CONTROL PROTOCOL SPECIFICATION
+
+1. STATUS OF THIS MEMO
+
+   This document specifies a control protocol for led matrices,
+   and assumes that the reader is familiar with udp, checksums,
+   led matrices and other knowledge that comes with it.
+
+                             TABLE OF CONTENTS
+
+   1. STATUS OF THIS MEMO                                           1
+   2. INTRODUCTION                                                  1
+   3. PROTOCOL SPECIFICATION                                        2
+     3.1 Packet header format                                       
+     3.2 Checksum calculation                                       
+     3.3 Magic
+     3.4 Version
+   4. COMMANDS                                                      3
+     4.1 Introduction                                                 
+     4.2 Basic commands
+     4.2.1 Write buffer
+     4.2.2 Clear
+     4.2.3 Draw row
+     4.2.4 Draw image rectangle
+     4.2.5 Write text line based                                    4
+     4.2.6 Write text absolute
+     4.2.9 Set Color
+   5. OTHER NOTES                                                   5
+
+
+2. INTRODUCTION
+  The Led Matrix Control Protocol (or LMCP for short) is an UDP based
+  protocol created to control led matrices. The goal is to create a
+  simple, easy to understand protocol that can drive ledmatrices at
+  moderate speed without glitches. The default port for use with this
+  protocol is port 1337.
+
+------------------------------------------------------------------------
+
+Tkkrlab Network Team                                          [ Page 2 ]
+Request for Comments: 133743                                   June 2016
+
+3. PROTOCOL SPECIFICATION
+
+3.1 Packet header format
+   Each LMCP packet starts with a common header. The format of the
+   header is as follows.
+
+    0               1               2               3     
+    0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 
+   +---------------------------------------------------------------+
+   | Magic 1: 0x4C | Magic 2: 0x4D | Magic 3: 0x43 | Magic 4: 0x50 |
+   +---------------------------------------------------------------+
+
+    4               5               6               7     
+    0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 
+   +---------------------------------------------------------------+
+   | Version: 0x01 | Version: 0x00 | Version: 0x00 | Version: 0x00 |
+   +---------------------------------------------------------------+
+
+    8               9               10              11     
+    0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 
+   +---------------------------------------------------------------+
+   | Checksum      | Checksum      | Checksum      | Checksum      |
+   +---------------------------------------------------------------+
+
+    12              13              14              15     
+    0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 
+   +---------------------------------------------------------------+
+   | Length        | Length        | Length        | Length        |
+   +---------------------------------------------------------------+
+
+    16              17              18              19     
+    0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 
+   +---------------------------------------------------------------+
+   | Command       | Command       | Command       | Command       |
+   +---------------------------------------------------------------+
+
+3.2 Checksum calculation
+   Each LMCP packet contains a 32-bit checksum, as described in the
+   packet header format section (3.1) of this document. The checksum
+   is calculated by adding together all bytes after byte 19 of the
+   packet header. This includes bytes 12 through 19 of the packet
+   header. The checksum value is allowed to overflow.
+   Following the checksum the header also contains  32-bit words
+   describing the command issued and the length of the data part
+   of the packet.
+
+3.3 Magic
+   The first 32-bit word of the LMCP packet header reads in hex:
+   0x50434D4C, or in ASCII "LMCP"
+   The headers shall always start with this magic "word"
+
+3.4 Version
+   The protocol as described in this document is version 1, identified
+   by 0x01 in the version field.
+
+------------------------------------------------------------------------
+
+Tkkrlab Network Team                                          [ Page 3 ]
+Request for Comments: 133743                                   June 2016
+
+4. COMMANDS
+
+4.1 Introduction 
+   Each command is identified by it's unique 32-bit word.
+   Arguments to a command are to be send in the data part of the packet.
+   Such arguments may include x, y, color and other data needed.
+   Multiple commands may be sent in 1 datagram by repeating the full
+   header.
+
+4.2 Commands
+   What follows is a set of commands that are to be implemented for this protocol.
+
+4.2.1 Write buffer
+   This command is identified by 0x01.
+   Function: Writes the contents of the framebuffer to the matrix
+   Arguments: No arguments
+
+4.2.2 Clear
+   This command is identified by 0x02.
+   Function: Clears the framebuffer
+   Arguments: No arguments
+
+4.2.3 Draw row
+   This command is identified by 0x10.
+   Function: Write to a row.
+   Arguments: * uint32_t y: y position of the row to draw
+              * uint8_t data[MATRIX_WIDTH * 8 * 3]: RGB pixel data
+
+4.2.4 Draw image rectangle
+   This command is identified by 0x11.
+   Function: Write to arbitrary rectangular location in the framebuffer.
+   Arguments: * uint32_t x: top left x position of pixel data
+              * uint32_t y: top left y position of pixel data
+              * uint32_t width: width of pixel data
+              * uint32_t height: height of pixel data
+              * uint8_t data[width * height * 3]: RGB pixel data
+
+------------------------------------------------------------------------
+
+Tkkrlab Network Team                                          [ Page 4 ]
+Request for Comments: 133743                                   June 2016
+
+4.2.5 Write text line based
+   This command is identified by 0x20.
+   Function: Write text to framebuffer at text line.
+   Arguments: * uint32_t x: top left x position in chars from 0 through (MATRIX_WIDTH / FONT_WIDTH)
+              * uint32_t y: top left y position in chars from 0 through (MATRIX_HEIGHT / FONT_HEIGHT)
+              * uint8_t brightness: brightness of text (0x00 - 0xFF)
+              * uint8_t text[...]: text (ASCII)
+              * 0x00: string terminator
+
+4.2.6 Write text absolute
+   This command is identified by 0x21.
+   Function: Write text to framebuffer at absolute location.
+   Arguments: * uint32_t x: top left x position in chars from 0 through MATRIX_WIDTH
+              * uint32_t y: top left y position in chars from 0 through MATRIX_HEIGHT
+              * uint8_t brightness: brightness of text (0x00 - 0xFF)
+              * uint8_t text[...]: text (ASCII)
+              * 0x00: string terminator
+
+4.2.9 Set Color
+   This command is identified by 0x32.
+   Function: Sets the color for data that does not supply RGB data (such as e.g. text).
+   Arguments: * uint8_t r: Red color value.
+              * uint8_t g: Green color value.
+              * uint8_t b: Blue color value.
+
+------------------------------------------------------------------------
+
+Tkkrlab Network Team                                          [ Page 5 ]
+Request for Comments: 133743                                   June 2016
+
+5. OTHER NOTES
+   This protocol is in no way capable of and will never be capable of
+   controlling a teapot. For a protocol capable of controlling a teapot
+   the HTCPCP/1.0 specification is suggested as described in RFC2324.
+
+
