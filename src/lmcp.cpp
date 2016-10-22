@@ -18,10 +18,6 @@ bool Lmcp::process_packet(uint8_t *data, uint16_t length)
     {
         if(idata[i] == this->magic)
         {
-            /*  since this is a cast to uint32_t*
-                we have to multiply by the sizeof(uint32_t)
-                to get the right offset.
-            */
             printf("[%s:%d]found packet header at: [%lu]\n",
                    __FILE__,
                    __LINE__,
