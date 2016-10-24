@@ -19,7 +19,24 @@ int main(void)
                                                0x00,
                                                0x00);
     assert(memcmp(&header, &headers, sizeof(Lmcp::header_t)) == 0);
-    // process data stream.
-    lmcp.process(data, 100);
+    // lookout for a header and find it's position.
+    uint8_t *header_pos = lmcp.find_header(data, 100);
+    printf("[%s:%d]found packet header at: [%lu]\n",
+           __FILE__,
+           __LINE__,
+           header_pos - data);
+    // print the contents if possible
+    Lmcp::header_t *header2 = (Lmcp::header_t *)(header_pos);
+    printf("\theader contains: \n"
+           "\theader->magic   : 0x%08X\n"
+           "\theader->version : 0x%08X\n"
+           "\theader->checksum: 0x%08X\n"
+           "\theader->length  : 0x%08X\n"
+           "\theader->command : 0x%08X\n",
+           header2->magic,
+           header2->version,
+           header2->checksum,
+           header2->length,
+           header2->command);
     return 0;
 }

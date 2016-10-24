@@ -33,6 +33,21 @@ Lmcp::header_t Lmcp::read_header(uint8_t *data)
     return h;
 }
 
+uint8_t *Lmcp::find_header(uint8_t *data, uint32_t length)
+{
+
+    for(uint32_t i = 0; i < length; i++)
+    {
+        uint32_t read_seq;
+        memcpy(&read_seq, (data + i), sizeof(uint32_t));
+        if(read_seq == this->magic)
+        {
+            return (data + i);
+        }
+    }
+    return NULL;
+}
+
 bool Lmcp::process(uint8_t *data, uint16_t length)
 {
     printf("\n");

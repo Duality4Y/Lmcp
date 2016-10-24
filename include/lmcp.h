@@ -24,6 +24,8 @@ public:
     header_t build_header(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
     /* reads in a header corresponding to what is found in the data stream */
     header_t read_header(uint8_t *);
+    /* returns a pointer to position in data stream. */
+    uint8_t *find_header(uint8_t *, uint32_t);
     /* pass data to this function for processing.*/
     bool process(uint8_t *, uint16_t);
     /* override to implement writing framebuffer out to the matrix. */
