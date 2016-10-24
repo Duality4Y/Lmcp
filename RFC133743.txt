@@ -46,8 +46,11 @@ Request for Comments: 133743                                   June 2016
 3. PROTOCOL SPECIFICATION
 
 3.1 Packet header format
-   Each LMCP packet starts with a common header. The format of the
-   header is as follows.
+   Each LMCP packet starts with a common header.
+   In the following diagram,
+   the left most bits represent the least significant bits,
+   and the right most bits represent the most significant bits.
+   The format of the header is as follows.
 
     0               1               2               3     
     0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 

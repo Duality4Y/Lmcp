@@ -5,15 +5,40 @@ Lmcp::Lmcp(uint32_t width, uint32_t height, uint8_t bitdepth)
     this->framebuffer_width = width;
     this->framebuffer_height = height;
     this->bitdepth = bitdepth;
+
+    // magic as a 32bit-word
+    memcpy(&this->magic, magic_bytes, sizeof(uint32_t));
+
+    // initialize to white for default.
     for(int i = 0; i < 3; i++)
     {
         this->color[i] = 0xFF;
     }
 }
 
-bool Lmcp::process_packet(uint8_t *data, uint16_t length)
+Lmcp::header_t Lmcp::build_header(uint32_t magic,
+                                  uint32_t version,
+                                  uint32_t checksum,
+                                  uint32_t length,
+                                  uint32_t command)
 {
+    Lmcp::header_t h = {magic, version, checksum, length, command};
+    return h;
+}
+
+Lmcp::header_t Lmcp::read_header(uint8_t *data)
+{
+    Lmcp::header_t h;
+    memcpy(&h, data, sizeof(Lmcp::header_t));
+    return h;
+}
+
+bool Lmcp::process(uint8_t *data, uint16_t length)
+{
+    printf("\n");
+    static Lmcp::header_t *header = NULL;
     uint32_t *idata = (uint32_t *)data;
+
     for(uint32_t i = 0; i < length / sizeof(uint32_t); i++)
     {
         if(idata[i] == this->magic)
@@ -22,8 +47,21 @@ bool Lmcp::process_packet(uint8_t *data, uint16_t length)
                    __FILE__,
                    __LINE__,
                    i * sizeof(uint32_t));
+            header = (Lmcp::header_t *)(data + (i * sizeof(uint32_t)));
+            printf("\theader contains: \n"
+                   "\theader->magic   : 0x%08X\n"
+                   "\theader->version : 0x%08X\n"
+                   "\theader->checksum: 0x%08X\n"
+                   "\theader->length  : 0x%08X\n"
+                   "\theader->command : 0x%08X\n",
+                   header->magic,
+                   header->version,
+                   header->checksum,
+                   header->length,
+                   header->command);
         }
     }
+    printf("\n");
     return false;
 }
 

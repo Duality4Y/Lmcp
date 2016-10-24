@@ -15,6 +15,9 @@
 #ifndef FONT5X7_H
 #define FONT5X7_H
 
+const uint32_t TEXT_CHAR_WIDTH = 5;
+const uint32_t TEXT_CHAR_HEIGHT = 7;
+
 // standard ascii 5x7 font
 // defines ascii characters 0x20-0x7F (32-127)
 static uint8_t Font5x7[] = {

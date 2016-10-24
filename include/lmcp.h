@@ -1,33 +1,31 @@
 #ifndef _LMCP_H_
 #define _LMCP_H_
 
-#include <stdint.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 
 #define UNUSED(X) ((void)X)
-
-const uint32_t TEXT_CHAR_WIDTH = 5;
-const uint32_t TEXT_CHAR_HEIGHT = 7;
-
-enum 
-{
-    MAGICK,
-    VERSION = 4,
-    CSUM_H,
-    CSUM_L,
-    COMMAND_H,
-    COMMAND_L,
-    LENGTH_H,
-    LENGTH_L,
-    DATA,
-};
 
 class Lmcp
 {
 public:
+    typedef struct __attribute__((packed, aligned(sizeof(uint32_t))))
+    {
+        uint32_t magic;
+        uint32_t version;
+        uint32_t checksum;
+        uint32_t length;
+        uint32_t command;
+    } header_t;
+
     Lmcp(uint32_t, uint32_t, uint8_t);
-    /* data passed to this function for processing.*/
-    bool process_packet(uint8_t *, uint16_t);
+    /* build a header from the arguments. */
+    header_t build_header(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+    /* reads in a header corresponding to what is found in the data stream */
+    header_t read_header(uint8_t *);
+    /* pass data to this function for processing.*/
+    bool process(uint8_t *, uint16_t);
     /* override to implement writing framebuffer out to the matrix. */
     virtual void write_buffer();
 
@@ -40,9 +38,8 @@ private:
 
     // header magic
     const uint8_t magic_bytes[4] = {'L', 'M', 'C', 'P'};
-    // magic as a 32bit-word
-    uint32_t magic = ((uint32_t *)magic_bytes)[0];
-
+    // holds the magic number.
+    uint32_t magic;
     /* clears the framebuffer. */
     void clear();
     /* set a pixel in framebuffer. */
