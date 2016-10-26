@@ -28,6 +28,8 @@ Lmcp::header_t Lmcp::build_header(uint32_t magic,
 
 Lmcp::header_t Lmcp::read_header(uint8_t *data)
 {
+    // this can totally go wrong, we are just coping like
+    // from the end of data and we could go over the boundry.
     Lmcp::header_t h;
     memcpy(&h, data, sizeof(Lmcp::header_t));
     return h;
@@ -35,6 +37,10 @@ Lmcp::header_t Lmcp::read_header(uint8_t *data)
 
 uint8_t *Lmcp::find_header(uint8_t *data, uint32_t length)
 {
+    if(data == NULL)
+    {
+        return data;
+    }
 
     for(uint32_t i = 0; i < length; i++)
     {
@@ -45,6 +51,7 @@ uint8_t *Lmcp::find_header(uint8_t *data, uint32_t length)
             return (data + i);
         }
     }
+
     return NULL;
 }
 
@@ -58,7 +65,7 @@ bool Lmcp::process(uint8_t *data, uint16_t length)
     {
         if(idata[i] == this->magic)
         {
-            printf("[%s:%d]found packet header at: [%lu]\n",
+            printf("[%s:%d] found packet header at: [%lu]\n",
                    __FILE__,
                    __LINE__,
                    i * sizeof(uint32_t));
