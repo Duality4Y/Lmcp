@@ -2,8 +2,8 @@
 
 Lmcp::Lmcp(uint32_t width, uint32_t height, uint8_t bitdepth)
 {
-    this->framebuffer_width = width;
-    this->framebuffer_height = height;
+    this->field_width = width;
+    this->field_height = height;
     this->bitdepth = bitdepth;
 
     // magic as a 32bit-word
@@ -57,33 +57,35 @@ uint8_t *Lmcp::find_header(uint8_t *data, uint32_t length)
 
 bool Lmcp::process(uint8_t *data, uint16_t length)
 {
-    printf("\n");
-    static Lmcp::header_t *header = NULL;
-    uint32_t *idata = (uint32_t *)data;
+    UNUSED(data);
+    UNUSED(length);
+    // printf("\n");
+    // static Lmcp::header_t *header = NULL;
+    // uint32_t *idata = (uint32_t *)data;
 
-    for(uint32_t i = 0; i < length / sizeof(uint32_t); i++)
-    {
-        if(idata[i] == this->magic)
-        {
-            printf("[%s:%d] found packet header at: [%lu]\n",
-                   __FILE__,
-                   __LINE__,
-                   i * sizeof(uint32_t));
-            header = (Lmcp::header_t *)(data + (i * sizeof(uint32_t)));
-            printf("\theader contains: \n"
-                   "\theader->magic   : 0x%08X\n"
-                   "\theader->version : 0x%08X\n"
-                   "\theader->checksum: 0x%08X\n"
-                   "\theader->length  : 0x%08X\n"
-                   "\theader->command : 0x%08X\n",
-                   header->magic,
-                   header->version,
-                   header->checksum,
-                   header->length,
-                   header->command);
-        }
-    }
-    printf("\n");
+    // for(uint32_t i = 0; i < length / sizeof(uint32_t); i++)
+    // {
+    //     if(idata[i] == this->magic)
+    //     {
+    //         printf("[%s:%d] found packet header at: [%lu]\n",
+    //                __FILE__,
+    //                __LINE__,
+    //                i * sizeof(uint32_t));
+    //         header = (Lmcp::header_t *)(data + (i * sizeof(uint32_t)));
+    //         printf("\theader contains: \n"
+    //                "\theader->magic   : 0x%08X\n"
+    //                "\theader->version : 0x%08X\n"
+    //                "\theader->checksum: 0x%08X\n"
+    //                "\theader->length  : 0x%08X\n"
+    //                "\theader->command : 0x%08X\n",
+    //                header->magic,
+    //                header->version,
+    //                header->checksum,
+    //                header->length,
+    //                header->command);
+    //     }
+    // }
+    // printf("\n");
     return false;
 }
 

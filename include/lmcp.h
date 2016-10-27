@@ -31,10 +31,9 @@ public:
     /* override to implement writing framebuffer out to the matrix. */
     virtual void write_buffer();
 
-private:
-
-    uint32_t framebuffer_width;
-    uint32_t framebuffer_height;
+// private:
+    uint32_t field_width;
+    uint32_t field_height;
     uint8_t bitdepth;
     uint8_t color[3];
 
