@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <string.h>
 
+#define DEBUG
 #include <lmcp.h>
 
 #define MAX_DATA_SIZE (1019)
