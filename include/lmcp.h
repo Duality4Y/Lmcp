@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <stddef.h>
+#include <assert.h>
 
 #define UNUSED(X) ((void)X)
 
@@ -20,18 +22,25 @@ public:
     } header_t;
 
     Lmcp(uint32_t, uint32_t, uint8_t);
+    /* builds a packet with a valid header from a data stream. */
+    header_t build_packet(uint8_t *, uint32_t, uint8_t *, uint32_t);
     /* build a header from the arguments. */
     header_t build_header(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
     /* reads in a header corresponding to what is found in the data stream */
     header_t read_header(uint8_t *);
     /* returns a pointer to position in data stream. */
-    uint8_t *find_header(uint8_t *, uint32_t);
+    int32_t find_header(uint8_t *, uint32_t);
     /* pass data to this function for processing.*/
     bool process(uint8_t *, uint16_t);
-    /* override to implement writing framebuffer out to the matrix. */
-    virtual void write_buffer();
 
-// private:
+    /* override to implement writing data out to the matrix. */
+    virtual void write_buffer();
+    /* override to clear a implementation specific surface. */
+    virtual void clear();
+    /* override to set a pixel on implementation specific drawing surface. */
+    virtual void set_pixel(uint32_t, uint32_t, uint8_t, uint8_t, uint8_t);
+
+protected:
     uint32_t field_width;
     uint32_t field_height;
     uint8_t bitdepth;
@@ -41,10 +50,9 @@ public:
     const uint8_t magic_bytes[4] = {'L', 'M', 'C', 'P'};
     // holds the magic number.
     uint32_t magic;
-    /* clears the framebuffer. */
-    void clear();
-    /* set a pixel in framebuffer. */
-    void set_pixel(uint32_t, uint32_t, uint8_t, uint8_t, uint8_t);
+    // holds version of protocol.
+    const static uint32_t version = 0x01;
+
     /* draw a row of data in the framebuffer. */
     uint32_t draw_row(uint8_t *);
     /* draw a image rect in the framebuffer. */

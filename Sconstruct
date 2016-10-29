@@ -28,6 +28,9 @@ local_libs = []
 cc_dev_flags = []
 cc_dev_flags.append('-ggdb3')
 cc_dev_flags.append('-O0')
+cc_dev_flags.append('-Werror')
+cc_dev_flags.append('-Wfatal-errors')
+cc_dev_flags.append('-Wsign-conversion')
 
 # compiler flags for when building a library.
 cc_lib_flags = []

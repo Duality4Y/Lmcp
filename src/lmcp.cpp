@@ -28,19 +28,40 @@ Lmcp::header_t Lmcp::build_header(uint32_t magic,
 
 Lmcp::header_t Lmcp::read_header(uint8_t *data)
 {
-    // this can totally go wrong, we are just coping like
+    assert(data != NULL);
+    // this can totally go wrong, we are could be coping like
     // from the end of data and we could go over the boundry.
     Lmcp::header_t h;
     memcpy(&h, data, sizeof(Lmcp::header_t));
     return h;
 }
 
-uint8_t *Lmcp::find_header(uint8_t *data, uint32_t length)
+Lmcp::header_t Lmcp::build_packet(uint8_t *packet_buffer,
+                                  uint32_t command,
+                                  uint8_t *data,
+                                  uint32_t length)
 {
-    if(data == NULL)
-    {
-        return data;
-    }
+    assert(packet_buffer != NULL);
+    assert(data != NULL);
+
+    uint32_t csum = this->csum(data, length);
+    csum += length;
+    csum += command;
+
+    Lmcp::header_t header = this->build_header(this->magic,
+                                               this->version,
+                                               csum,
+                                               length,
+                                               command);
+
+    memcpy(packet_buffer, &header, sizeof(header));
+    memcpy((packet_buffer + sizeof(header)), data, length);
+    return header;
+}
+
+int32_t Lmcp::find_header(uint8_t *data, uint32_t length)
+{
+    assert(data != NULL);
 
     for(uint32_t i = 0; i < length; i++)
     {
@@ -48,16 +69,28 @@ uint8_t *Lmcp::find_header(uint8_t *data, uint32_t length)
         memcpy(&read_seq, (data + i), sizeof(uint32_t));
         if(read_seq == this->magic)
         {
-            return (data + i);
+            return (int32_t)i;
         }
     }
 
-    return NULL;
+    return -1;
+}
+
+uint32_t Lmcp::csum(uint8_t *data, uint32_t length)
+{
+    assert(data != NULL);
+
+    uint32_t csum = 0;
+    for(uint32_t i = 0; i < length; i++)
+    {
+        csum += data[i];
+    }
+    return csum;
 }
 
 bool Lmcp::process(uint8_t *data, uint16_t length)
 {
-    UNUSED(data);
+    assert(data != NULL);
     UNUSED(length);
     // printf("\n");
     // static Lmcp::header_t *header = NULL;
@@ -103,30 +136,30 @@ void Lmcp::set_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b)
 
 uint32_t Lmcp::draw_row(uint8_t *data)
 {
-    UNUSED(data);
+    assert(data != NULL);
     return 0;
 }
 
 uint32_t Lmcp::draw_image(uint8_t *data)
 {
-    UNUSED(data);
+    assert(data != NULL);
     return 0;
 }
 
 uint32_t Lmcp::draw_text(uint8_t *data)
 {
-    UNUSED(data);
+    assert(data != NULL);
     return 0;
 }
 
 uint32_t Lmcp::draw_text_abs(uint8_t *data)
 {
-    UNUSED(data);
+    assert(data != NULL);
     return 0;
 }
 
 uint32_t Lmcp::set_color(uint8_t *data)
 {
-    UNUSED(data);
+    assert(data != NULL);
     return 0;
 }
