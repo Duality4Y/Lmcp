@@ -39,9 +39,11 @@ public:
     virtual void clear();
     /* override to set a pixel on implementation specific drawing surface. */
     virtual void set_pixel(uint32_t, uint32_t, uint8_t, uint8_t, uint8_t);
+
 #ifndef DEBUG
 private:
 #endif
+
     uint32_t field_width;
     uint32_t field_height;
     uint8_t bitdepth;
