@@ -1,3 +1,4 @@
 build/
 .sconsign.dblite
 *.a
+lmcp.sublime-project
