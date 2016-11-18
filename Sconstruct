@@ -39,7 +39,7 @@ system_libs = []
 
 # local libs are libraries inside of the project libraries folder.
 # asuming the library folder has the same name as the library folderl (lib+foldername).
-local_libs = []
+local_libs = ['LinkedList']
 
 
 # compiler flags for when doing development.
