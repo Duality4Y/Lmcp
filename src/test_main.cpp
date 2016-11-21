@@ -45,7 +45,7 @@ void TestLmcp::create_buffer()
             this->framebuffer[x].append(color_list());
             for(int c = 0; c < 3; c++)
             {
-                this->framebuffer[x][y].append(int());
+                this->framebuffer[x][y].append(uint8_t());
             }
         }
     }
@@ -53,11 +53,12 @@ void TestLmcp::create_buffer()
 
 void TestLmcp::write_buffer()
 {
-
+    this->buffer_is_written = true;
 }
 
 void TestLmcp::clear()
 {
+    this->clear_is_used = true;
     for(int x = 0; x < (int)this->field_width; x++)
     {
         for(int y = 0; y < (int)this->field_height; y++)
@@ -77,6 +78,7 @@ void TestLmcp::set_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b
     UNUSED(r);
     UNUSED(g);
     UNUSED(b);
+    this->pixel_is_set = true;
 }
 
 void TestLmcp::run_test()
@@ -93,8 +95,11 @@ void TestLmcp::run_test()
         }
     }
 
-    // build test packet for testing clear write_buffer and setting a pixel.
-    
+    uint8_t output_buffer[1024];
+    uint8_t data[1024];
+    this->build_packet(output_buffer, 0x02, data, 0);
+    this->process(output_buffer, 1024);
+    assert(this->clear_is_used == true);
 }
 
 void print_header_pos(uint8_t *start, uint8_t *end)

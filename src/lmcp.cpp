@@ -35,7 +35,6 @@ Lmcp::header_t Lmcp::read_header(uint8_t *data)
 Lmcp::header_t Lmcp::build_packet(uint8_t *packet_buffer, uint32_t command, uint8_t *data, uint32_t length)
 {
     assert(packet_buffer != NULL);
-    assert(data != NULL);
 
     uint32_t csum = this->csum(data, length);
     csum += length;
