@@ -16,13 +16,9 @@ Lmcp::Lmcp(uint32_t width, uint32_t height, uint8_t bitdepth)
     }
 }
 
-Lmcp::header_t Lmcp::build_header(uint32_t magic,
-                                  uint32_t version,
-                                  uint32_t checksum,
-                                  uint32_t length,
-                                  uint32_t command)
+Lmcp::header_t Lmcp::build_header(uint32_t checksum, uint32_t length, uint32_t command)
 {
-    Lmcp::header_t h = {magic, version, checksum, length, command};
+    Lmcp::header_t h = {this->magic, this->version, checksum, length, command};
     return h;
 }
 
@@ -36,10 +32,7 @@ Lmcp::header_t Lmcp::read_header(uint8_t *data)
     return h;
 }
 
-Lmcp::header_t Lmcp::build_packet(uint8_t *packet_buffer,
-                                  uint32_t command,
-                                  uint8_t *data,
-                                  uint32_t length)
+Lmcp::header_t Lmcp::build_packet(uint8_t *packet_buffer, uint32_t command, uint8_t *data, uint32_t length)
 {
     assert(packet_buffer != NULL);
     assert(data != NULL);
@@ -48,11 +41,7 @@ Lmcp::header_t Lmcp::build_packet(uint8_t *packet_buffer,
     csum += length;
     csum += command;
 
-    Lmcp::header_t header = this->build_header(this->magic,
-                                               this->version,
-                                               csum,
-                                               length,
-                                               command);
+    Lmcp::header_t header = this->build_header(csum, length, command);
 
     memcpy(packet_buffer, &header, sizeof(header));
     memcpy((packet_buffer + sizeof(header)), data, length);

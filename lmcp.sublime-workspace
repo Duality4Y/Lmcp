@@ -7,11 +7,51 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "src/test_main.cpp",
+			"settings":
+			{
+				"buffer_size": 7905,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/lmcp.cpp",
+			"settings":
+			{
+				"buffer_size": 3641,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "include/lmcp.h",
+			"settings":
+			{
+				"buffer_size": 2262,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Sconstruct",
+			"settings":
+			{
+				"buffer_size": 3933,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "RFC133743.txt",
+			"settings":
+			{
+				"buffer_size": 8019,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "Packages/User/scons.sublime-build",
 	"command_palette":
 	{
-		"height": 232.0,
+		"height": 92.0,
 		"selected_items":
 		[
 			[
@@ -191,7 +231,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 503.0
+		"width": 584.0
 	},
 	"console":
 	{
@@ -258,8 +298,24 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/home/duality/Documents/projects/lmcp",
+		"/home/duality/Documents/projects/lmcp/libraries",
+		"/home/duality/Documents/projects/lmcp/libraries/LinkedList",
+		"/home/duality/Documents/projects/lmcp/libraries/LinkedList/include",
+		"/home/duality/Documents/projects/lmcp/libraries/LinkedList/src",
+		"/home/duality/Documents/projects/lmcp/src"
+	],
 	"file_history":
 	[
+		"/home/duality/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+		"/home/duality/.config/sublime-text-3/Packages/Default/Preferences.sublime-settings",
+		"/home/duality/.config/sublime-text-3/Packages/User/Distraction Free.sublime-settings",
+		"/home/duality/.config/sublime-text-3/Packages/User/C++11.sublime-settings",
+		"/home/duality/Documents/projects/lmcp/libraries/LinkedList/src/linkedlist.tcc",
+		"/home/duality/Documents/projects/lmcp/libraries/LinkedList/include/linkedlist.h",
+		"/home/duality/Documents/projects/lmcp/.gitignore",
 		"/home/duality/.bashrc",
 		"/home/duality/.zshrc",
 		"/home/duality/Documents/code/GLupeN64/BUILDING.md",
@@ -274,11 +330,8 @@
 		"/home/duality/Documents/code/cobalt/src/cobalt.keyboard.js",
 		"/home/duality/Documents/projects/LinkedList/README.md",
 		"/home/duality/Documents/projects/LinkedList/LICENSE",
-		"/home/duality/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
-		"/home/duality/.config/sublime-text-3/Packages/Default/Preferences.sublime-settings",
 		"/home/duality/Documents/projects/LinkedList/src/linkedlist.cpp",
 		"/home/duality/Documents/projects/LinkedList/src/linkedlist.tpp",
-		"/home/duality/.config/sublime-text-3/Packages/User/C++11.sublime-settings",
 		"/home/duality/Documents/projects/LinkedList/src/.gitkeep",
 		"/home/duality/.config/sublime-text-3/Packages/SublimeGDB/SublimeGDB.sublime-settings",
 		"/home/duality/Documents/projects/LinkedList/include/list.h",
@@ -383,15 +436,11 @@
 		"/home/duality/.config/sublime-text-3/Packages/MarkdownEditing/README.md",
 		"/home/duality/Documents/coding/py-ledart/Ledart/images/tkkrlab.png",
 		"/home/duality/Documents/rnplus-artnet-manager/rnplus-artnet-manager.pro.user",
-		"/home/duality/Documents/rnplus-artnet-manager/rnplus-artnet-manager.pro",
-		"/home/duality/Documents/rnplus-artnet-manager/main.cpp",
-		"/home/duality/Documents/rnplus-artnet-manager/mainwindow.cpp",
-		"/home/duality/Documents/rnplus-artnet-manager/mainwindow.h",
-		"/home/duality/Documents/rnplus-artnet-manager/header.png"
+		"/home/duality/Documents/rnplus-artnet-manager/rnplus-artnet-manager.pro"
 	],
 	"find":
 	{
-		"height": 43.0
+		"height": 34.0
 	},
 	"find_in_files":
 	{
@@ -406,6 +455,13 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"uint32_t",
+			"int",
+			"->",
+			"ointer",
+			"8",
+			"true",
+			"printf",
 			"T",
 			"node_ptr",
 			"Linked<T>",
@@ -526,14 +582,7 @@
 			"printf",
 			"[main]",
 			"processPacket",
-			"size_t",
-			"void",
-			"(",
-			"size_t",
-			";",
-			"(",
-			"0x0",
-			"0x00000002"
+			"size_t"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -551,8 +600,159 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "src/test_main.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7905,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2409,
+								2409
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++11/C++11.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 975.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/lmcp.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3641,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								219,
+								219
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++11/C++11.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 117.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "include/lmcp.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2262,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1477,
+								1477
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++11/C++11.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 195.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "Sconstruct",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3933,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": -0.0,
+						"translation.y": 351.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "RFC133743.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8019,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -55184,7 +55384,7 @@
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": false,
+	"side_bar_visible": true,
 	"side_bar_width": 257.0,
 	"status_bar_visible": true,
 	"template_settings":

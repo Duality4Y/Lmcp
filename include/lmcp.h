@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <assert.h>
 
+#include <linkedlist.h>
+
 #define UNUSED(X) ((void)X)
 
 class Lmcp
@@ -21,11 +23,14 @@ public:
         uint32_t command;
     } header_t;
 
+    LinkedList<header_t> send_queue;
+    LinkedList<header_t> receive_queue;
+
     Lmcp(uint32_t, uint32_t, uint8_t);
     /* builds a packet with a valid header from a data stream. */
     header_t build_packet(uint8_t *, uint32_t, uint8_t *, uint32_t);
     /* build a header from the arguments. */
-    header_t build_header(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+    header_t build_header(uint32_t, uint32_t, uint32_t);
     /* reads in a header corresponding to what is found in the data stream */
     header_t read_header(uint8_t *);
     /* returns a pointer to position in data stream. */
