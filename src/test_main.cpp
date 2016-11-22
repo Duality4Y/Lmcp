@@ -97,9 +97,23 @@ void TestLmcp::run_test()
 
     uint8_t output_buffer[1024];
     uint8_t data[1024];
-    this->build_packet(output_buffer, 0x02, data, 0);
+    this->build_packet(output_buffer, Lmcp::CLEAR, data, 0);
     this->process(output_buffer, 1024);
     assert(this->clear_is_used == true);
+
+    memset(output_buffer, 0, 1024);
+    memset(data, 0, 1024);
+    this->build_packet(output_buffer, Lmcp::WRITEOUT, data, 0);
+    this->process(output_buffer, 1024);
+    assert(this->buffer_is_written == true);
+
+    memset(output_buffer, 0, 1024);
+    memset(data, 0, 1024);
+    data[0] = data[1] = data[2] = data[3] = 1;
+    data[4] = data[5] = data[6] = 0xff;
+    this->build_packet(output_buffer, Lmcp::DRAW_IMAGE_RECT, data, 7);
+    process(output_buffer, 1024);
+    assert(this->pixel_is_set == true);
 }
 
 void print_header_pos(uint8_t *start, uint8_t *end)
@@ -231,7 +245,7 @@ void test_find_header()
 
     header_pos = lmcp.find_header(data, DATA_SIZE);
     assert(header_pos == 0);
-    
+
     /* well ... check if it's inside bounds. */
     if(header_pos < (DATA_SIZE - 21))
     {
@@ -247,7 +261,7 @@ void test_find_header()
     }
 
     memset(data, 0, DATA_SIZE);
-    
+
     header_pos = lmcp.find_header(data, DATA_SIZE);
     assert(header_pos == -1);
 

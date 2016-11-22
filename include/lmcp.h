@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include <linkedlist.h>
+#include <iostream>
 
 #define UNUSED(X) ((void)X)
 
@@ -21,7 +22,15 @@ public:
         uint32_t checksum;
         uint32_t length;
         uint32_t command;
+        uint8_t *data;
     } header_t;
+
+    enum
+    {
+        WRITEOUT = 0x01,
+        CLEAR = 0x02,
+        DRAW_IMAGE_RECT = 0x11
+    };
 
     LinkedList<header_t> send_queue;
     LinkedList<header_t> receive_queue;

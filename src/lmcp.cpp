@@ -18,7 +18,7 @@ Lmcp::Lmcp(uint32_t width, uint32_t height, uint8_t bitdepth)
 
 Lmcp::header_t Lmcp::build_header(uint32_t checksum, uint32_t length, uint32_t command)
 {
-    Lmcp::header_t h = {this->magic, this->version, checksum, length, command};
+    Lmcp::header_t h = {this->magic, this->version, checksum, length, command, NULL};
     return h;
 }
 
@@ -79,34 +79,38 @@ uint32_t Lmcp::csum(uint8_t *data, uint32_t length)
 bool Lmcp::process(uint8_t *data, uint16_t length)
 {
     assert(data != NULL);
-    UNUSED(length);
-    // printf("\n");
-    // static Lmcp::header_t *header = NULL;
-    // uint32_t *idata = (uint32_t *)data;
 
-    // for(uint32_t i = 0; i < length / sizeof(uint32_t); i++)
-    // {
-    //     if(idata[i] == this->magic)
-    //     {
-    //         printf("[%s:%d] found packet header at: [%lu]\n",
-    //                __FILE__,
-    //                __LINE__,
-    //                i * sizeof(uint32_t));
-    //         header = (Lmcp::header_t *)(data + (i * sizeof(uint32_t)));
-    //         printf("\theader contains: \n"
-    //                "\theader->magic   : 0x%08X\n"
-    //                "\theader->version : 0x%08X\n"
-    //                "\theader->checksum: 0x%08X\n"
-    //                "\theader->length  : 0x%08X\n"
-    //                "\theader->command : 0x%08X\n",
-    //                header->magic,
-    //                header->version,
-    //                header->checksum,
-    //                header->length,
-    //                header->command);
-    //     }
-    // }
-    // printf("\n");
+    uint32_t read_seq;
+    LinkedList<int> packet_positions;
+
+    for(int i = 0; i < length; i++)
+    {
+        memcpy(&read_seq, (data + i), sizeof(uint32_t));
+        if(read_seq == this->magic)
+        {
+            packet_positions.append(i);
+        }
+    }
+
+    LinkedList<int>::node_ptr i;
+    for(i = packet_positions.start(); i; i = packet_positions.next(i))
+    {
+        Lmcp::header_t header = Lmcp::read_header(data + i->value);
+        switch(header.command)
+        {
+            case(Lmcp::WRITEOUT):
+                this->write_buffer();
+            break;
+            case(Lmcp::CLEAR):
+                this->clear();
+            break;
+            case(Lmcp::DRAW_IMAGE_RECT):
+                this->draw_image(data);
+            break;
+            default:
+            break;
+        }
+    }
     return false;
 }
 
@@ -131,6 +135,25 @@ uint32_t Lmcp::draw_row(uint8_t *data)
 uint32_t Lmcp::draw_image(uint8_t *data)
 {
     assert(data != NULL);
+
+    uint8_t x = data[0];
+    uint8_t y = data[1];
+    uint8_t width = data[2];
+    uint8_t height = data[3];
+
+    uint8_t dp = 0;
+    for(int xp = x; xp < (x + width); xp++)
+    {
+        for(int yp = y; yp < (y + height); y++)
+        {
+            uint8_t r = data[dp];
+            uint8_t g = data[dp + 1];
+            uint8_t b = data[dp + 2];
+            this->set_pixel((uint32_t)xp, (uint32_t)yp, r, g, b);
+            dp += 3;
+            std::cout << dp << std::endl;
+        }
+    }
     return 0;
 }
 
