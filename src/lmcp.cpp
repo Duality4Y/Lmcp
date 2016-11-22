@@ -32,7 +32,10 @@ Lmcp::header_t Lmcp::read_header(uint8_t *data)
     return h;
 }
 
-Lmcp::header_t Lmcp::build_packet(uint8_t *packet_buffer, uint32_t command, uint8_t *data, uint32_t length)
+Lmcp::header_t Lmcp::build_packet(uint8_t *packet_buffer,
+                                  uint32_t command,
+                                  uint8_t *data,
+                                  uint32_t length)
 {
     assert(packet_buffer != NULL);
 
@@ -106,7 +109,16 @@ bool Lmcp::process(uint8_t *data, uint16_t length)
             break;
             case(Lmcp::DRAW_IMAGE_RECT):
                 // this does not work somehow.
-                this->draw_image(data + sizeof(Lmcp::header_t)  sizeof(uint8_t *));
+                // for(size_t i = 0; i < (sizeof(Lmcp::header_t) + header.length); i++)
+                // {
+                //     printf("%d ", data[i]);
+                //     if((i & 0x03) == 0x03)
+                //     {
+                //         printf("\n");
+                //     }
+                // }
+                // printf("\n");
+                this->draw_image(data + i->value + (sizeof(Lmcp::header_t)));
             break;
             default:
             break;
@@ -142,15 +154,16 @@ uint32_t Lmcp::draw_image(uint8_t *data)
     uint8_t width = data[2];
     uint8_t height = data[3];
 
+    uint8_t *color_offset = data + 4;
+
     uint8_t dp = 0;
     for(int xp = 0; xp < width; xp++)
     {
         for(int yp = 0; yp < height; yp++)
         {
-            uint8_t r = data[dp];
-            uint8_t g = data[dp + 1];
-            uint8_t b = data[dp + 2];
-            std::cout << ":" << xp << ":" << yp << ":" << x << ":" << y << ":" << width << ":" << height << ":" << std::endl;
+            uint8_t r = color_offset[dp];
+            uint8_t g = color_offset[dp + 1];
+            uint8_t b = color_offset[dp + 2];
             this->set_pixel((uint32_t)xp + x, (uint32_t)yp + y, r, g, b);
             dp += 3;
         }

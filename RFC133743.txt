@@ -130,10 +130,10 @@ Request for Comments: 133743                                   June 2016
 4.2.4 Draw image rectangle
    This command is identified by 0x11.
    Function: Write to arbitrary rectangular location in the framebuffer.
-   Arguments: * uint32_t x: top left x position of pixel data
-              * uint32_t y: top left y position of pixel data
-              * uint32_t width: width of pixel data
-              * uint32_t height: height of pixel data
+   Arguments: * uint8_t x: top left x position of pixel data
+              * uint8_t y: top left y position of pixel data
+              * uint8_t width: width of pixel data
+              * uint8_t height: height of pixel data
               * uint8_t data[width * height * 3]: RGB pixel data
 
 ------------------------------------------------------------------------
