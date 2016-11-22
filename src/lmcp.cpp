@@ -105,7 +105,8 @@ bool Lmcp::process(uint8_t *data, uint16_t length)
                 this->clear();
             break;
             case(Lmcp::DRAW_IMAGE_RECT):
-                this->draw_image(data);
+                // this does not work somehow.
+                this->draw_image(data + sizeof(Lmcp::header_t)  sizeof(uint8_t *));
             break;
             default:
             break;
@@ -142,16 +143,16 @@ uint32_t Lmcp::draw_image(uint8_t *data)
     uint8_t height = data[3];
 
     uint8_t dp = 0;
-    for(int xp = x; xp < (x + width); xp++)
+    for(int xp = 0; xp < width; xp++)
     {
-        for(int yp = y; yp < (y + height); y++)
+        for(int yp = 0; yp < height; yp++)
         {
             uint8_t r = data[dp];
             uint8_t g = data[dp + 1];
             uint8_t b = data[dp + 2];
-            this->set_pixel((uint32_t)xp, (uint32_t)yp, r, g, b);
+            std::cout << ":" << xp << ":" << yp << ":" << x << ":" << y << ":" << width << ":" << height << ":" << std::endl;
+            this->set_pixel((uint32_t)xp + x, (uint32_t)yp + y, r, g, b);
             dp += 3;
-            std::cout << dp << std::endl;
         }
     }
     return 0;

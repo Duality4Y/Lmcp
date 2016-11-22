@@ -73,11 +73,11 @@ void TestLmcp::clear()
 
 void TestLmcp::set_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b)
 {
-    UNUSED(x);
-    UNUSED(y);
-    UNUSED(r);
-    UNUSED(g);
-    UNUSED(b);
+    assert(x == 1);
+    assert(y == 1);
+    assert(r == 0xff);
+    assert(g == 0xff);
+    assert(b == 0xff);
     this->pixel_is_set = true;
 }
 
