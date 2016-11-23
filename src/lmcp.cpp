@@ -168,6 +168,7 @@ uint32_t Lmcp::draw_image(uint8_t *data)
             dp += 3;
         }
     }
+    
     return 0;
 }
 

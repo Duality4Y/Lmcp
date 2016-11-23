@@ -73,11 +73,11 @@ void TestLmcp::clear()
 
 void TestLmcp::set_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b)
 {
-    assert(x == 1);
-    assert(y == 1);
-    assert(r == 0xff);
-    assert(g == 0xff);
-    assert(b == 0xff);
+
+    this->framebuffer[(int)x][(int)y][0] = r;
+    this->framebuffer[(int)x][(int)y][1] = g;
+    this->framebuffer[(int)x][(int)y][2] = b;
+
     this->pixel_is_set = true;
 }
 
@@ -114,15 +114,18 @@ void TestLmcp::run_test()
     this->build_packet(output_buffer, Lmcp::DRAW_IMAGE_RECT, data, 7);
     process(output_buffer, 1024);
     assert(this->pixel_is_set == true);
+    assert(this->framebuffer[1][1][0] == 0xff);
+    assert(this->framebuffer[1][1][1] == 0xff);
+    assert(this->framebuffer[1][1][2] == 0xff);
 }
 
 void print_header_pos(uint8_t *start, uint8_t *end)
 {
-    printf("%s(%s:%d)found packet header at: [%lu]\n",
+    printf("%s(%s:%d)found packet header at: [%d]\n",
            __PRETTY_FUNCTION__,
            __FILE__,
            __LINE__,
-           end - start);
+           (int)(end - start));
 }
 
 void print_header(Lmcp::header_t *header)
