@@ -144,18 +144,9 @@ Request for Comments: 133743                                   June 2016
 4.2.5 Write text line based
    This command is identified by 0x20.
    Function: Write text to framebuffer at text line.
-   Arguments: * uint32_t x: top left x position in chars from 0 through (MATRIX_WIDTH / FONT_WIDTH)
-              * uint32_t y: top left y position in chars from 0 through (MATRIX_HEIGHT / FONT_HEIGHT)
-              * uint8_t brightness: brightness of text (0x00 - 0xFF)
-              * uint8_t text[...]: text (ASCII)
-              * 0x00: string terminator
-
-4.2.6 Write text absolute
-   This command is identified by 0x21.
-   Function: Write text to framebuffer at absolute location.
-   Arguments: * uint32_t x: top left x position in chars from 0 through MATRIX_WIDTH
-              * uint32_t y: top left y position in chars from 0 through MATRIX_HEIGHT
-              * uint8_t brightness: brightness of text (0x00 - 0xFF)
+   Arguments: * uint8_t x: top left x
+              * uint8_t y: top left y
+              * uint8_t mode: select draw mode either absolute[0x00] or line based[0x01].
               * uint8_t text[...]: text (ASCII)
               * 0x00: string terminator
 

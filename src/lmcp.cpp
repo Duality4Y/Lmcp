@@ -1,5 +1,7 @@
 #include "lmcp.h"
 
+#include <font7x5.h>
+
 Lmcp::Lmcp(uint32_t width, uint32_t height, uint8_t bitdepth)
 {
     this->field_width = width;
@@ -50,21 +52,20 @@ Lmcp::header_t Lmcp::build_packet(uint8_t *packet_buffer,
     return header;
 }
 
-int32_t Lmcp::find_header(uint8_t *data, uint32_t length)
+LinkedList<size_t> Lmcp::find_headers(uint8_t *data, uint32_t length)
 {
-    assert(data != NULL);
+    uint32_t read_seq;
+    LinkedList<size_t> positions;
 
-    for(uint32_t i = 0; i < length; i++)
+    for(size_t p = 0; p < length; p++)
     {
-        uint32_t read_seq;
-        memcpy(&read_seq, (data + i), sizeof(uint32_t));
+        memcpy(&read_seq, (data + p), sizeof(uint32_t));
         if(read_seq == this->magic)
         {
-            return (int32_t)i;
+            positions.append(p);
         }
     }
-
-    return -1;
+    return positions;
 }
 
 uint32_t Lmcp::csum(uint8_t *data, uint32_t length)
@@ -79,26 +80,17 @@ uint32_t Lmcp::csum(uint8_t *data, uint32_t length)
     return csum;
 }
 
-bool Lmcp::process(uint8_t *data, uint16_t length)
+bool Lmcp::process(uint8_t *data, size_t length)
 {
     assert(data != NULL);
 
-    uint32_t read_seq;
-    LinkedList<int> packet_positions;
+    LinkedList<size_t> packet_positions = this->find_headers(data, length);
 
-    for(int i = 0; i < length; i++)
-    {
-        memcpy(&read_seq, (data + i), sizeof(uint32_t));
-        if(read_seq == this->magic)
-        {
-            packet_positions.append(i);
-        }
-    }
-
-    LinkedList<int>::node_ptr i;
+    LinkedList<size_t>::node_ptr i;
     for(i = packet_positions.start(); i; i = packet_positions.next(i))
     {
         Lmcp::header_t header = Lmcp::read_header(data + i->value);
+        size_t data_offset = (i->value + sizeof(Lmcp::header_t));
         switch(header.command)
         {
             case(Lmcp::WRITEOUT):
@@ -107,18 +99,14 @@ bool Lmcp::process(uint8_t *data, uint16_t length)
             case(Lmcp::CLEAR):
                 this->clear();
             break;
+            case(Lmcp::SET_COLOR):
+                this->set_color(data + data_offset);
+            break;
             case(Lmcp::DRAW_IMAGE_RECT):
-                // this does not work somehow.
-                // for(size_t i = 0; i < (sizeof(Lmcp::header_t) + header.length); i++)
-                // {
-                //     printf("%d ", data[i]);
-                //     if((i & 0x03) == 0x03)
-                //     {
-                //         printf("\n");
-                //     }
-                // }
-                // printf("\n");
-                this->draw_image(data + i->value + (sizeof(Lmcp::header_t)));
+                this->draw_image(data + data_offset);
+            break;
+            case(Lmcp::WRITE_TEXT):
+                this->draw_text(data + data_offset);
             break;
             default:
             break;
@@ -130,19 +118,13 @@ bool Lmcp::process(uint8_t *data, uint16_t length)
 void Lmcp::write_buffer(){}
 void Lmcp::clear(){}
 
-void Lmcp::set_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b)
+void Lmcp::set_pixel(uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b)
 {
     UNUSED(x);
     UNUSED(y);
     UNUSED(r);
     UNUSED(g);
     UNUSED(b);
-}
-
-uint32_t Lmcp::draw_row(uint8_t *data)
-{
-    assert(data != NULL);
-    return 0;
 }
 
 uint32_t Lmcp::draw_image(uint8_t *data)
@@ -157,14 +139,14 @@ uint32_t Lmcp::draw_image(uint8_t *data)
     uint8_t *color_offset = data + 4;
 
     uint8_t dp = 0;
-    for(int xp = 0; xp < width; xp++)
+    for(uint32_t xp = 0; xp < width; xp++)
     {
-        for(int yp = 0; yp < height; yp++)
+        for(uint32_t yp = 0; yp < height; yp++)
         {
             uint8_t r = color_offset[dp];
             uint8_t g = color_offset[dp + 1];
             uint8_t b = color_offset[dp + 2];
-            this->set_pixel((uint32_t)xp + x, (uint32_t)yp + y, r, g, b);
+            this->set_pixel(xp + x, yp + y, r, g, b);
             dp += 3;
         }
     }
@@ -174,18 +156,44 @@ uint32_t Lmcp::draw_image(uint8_t *data)
 
 uint32_t Lmcp::draw_text(uint8_t *data)
 {
-    assert(data != NULL);
-    return 0;
-}
+    // uint8_t char_val = data[4];
+    uint8_t x = data[0];
+    uint8_t y = data[1];
+    uint8_t mode = data[2];
+    uint8_t *char_start = data + 3;
 
-uint32_t Lmcp::draw_text_abs(uint8_t *data)
-{
-    assert(data != NULL);
+    uint8_t char_limit = this->field_width / TEXT_CHAR_WIDTH;
+    uint8_t length = strlen((char *)char_start);
+    
+    // limit to char_limit if length (string data) greater then char_limit
+    if(length >= char_limit)
+        length = char_limit;
+    // check if mode is valid.
+    if(mode > 0x01)
+        return 0;
+
+    for(uint8_t c = 0; c < length; c++)
+    {
+        for(uint8_t cx = 0; cx < TEXT_CHAR_WIDTH; cx++)
+        {
+            uint8_t pixel_col = Font5x7[(char_start[c] - 0x20) * (uint8_t)TEXT_CHAR_WIDTH + cx];
+            for(uint8_t cy = 0; cy < TEXT_CHAR_HEIGHT; cy++)
+            {
+                bool on = (pixel_col & (1 << cy));
+                this->set_pixel(cx + (x * TEXT_CHAR_WIDTH * mode),
+                                cy + (y * TEXT_CHAR_HEIGHT * mode),
+                                this->color[0] * on,
+                                this->color[1] * on,
+                                this->color[2] * on);
+            }
+        }
+    }
+
     return 0;
 }
 
 uint32_t Lmcp::set_color(uint8_t *data)
 {
-    assert(data != NULL);
+    memcpy(this->color, data, 3);
     return 0;
 }
